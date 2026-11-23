@@ -30,7 +30,13 @@ Only for Linux, tested in Linux: Devuan GNU/Linux 6 (excalibur) x86_64
 
 ## Install
 
-Install from source (Go 1.27+):
+With [mise](https://mise.jdx.dev):
+
+```sh
+mise use -g github:selene466/gof2remake-trainer-linux@latest
+```
+
+Or install from source (Go 1.27+):
 
 ```sh
 mise install-local
