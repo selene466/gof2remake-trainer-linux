@@ -1,0 +1,37 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - run: go vet ./...
+      - name: Build
+        env:
+          CGO_ENABLED: "0"
+          GOOS: linux
+          GOARCH: amd64
+        run: |
+          mkdir -p dist
+          go build -trimpath -o dist/gof2remake-trainer ./cmd/gof2remake-trainer
+      - name: Package
+        run: |
+          name=gof2remake-trainer-${GITHUB_REF_NAME}-linux-amd64
+          mkdir -p "pkg/$name"
+          cp dist/gof2remake-trainer README.md LICENSE "pkg/$name/"
+          tar -C pkg -czf "$name.tar.gz" "$name"
+          sha256sum "$name.tar.gz" > "$name.tar.gz.sha256"
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" --generate-notes --verify-tag gof2remake-trainer-*.tar.gz*
